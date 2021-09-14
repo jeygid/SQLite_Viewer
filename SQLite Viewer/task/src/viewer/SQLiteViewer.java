@@ -22,8 +22,10 @@ public class SQLiteViewer extends JFrame {
     public static JComboBox<String> tablesBox;
     public static JTextArea query;
     public static JTable resultTable;
+    public static JButton execute;
 
     public SQLiteViewer() {
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setTitle("SQLite Viewer");
@@ -50,12 +52,17 @@ public class SQLiteViewer extends JFrame {
         panel.add(open);
 
         open.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 
                 File file = new File(fileName.getText());
 
-
+                if (!file.exists()) {
+                    showMessageDialog(new Frame(), "The file doesn't exist!");
+                    execute.setEnabled(false);
+                    return;
+                }
 
                 if (file.getName().endsWith(".db")) {
 
@@ -70,13 +77,15 @@ public class SQLiteViewer extends JFrame {
 
                     for (String item : tablesList) {
                         tablesBox.addItem(item);
-                        System.out.println("Item" + item);
                     }
 
                     query.setText("SELECT * FROM " + tablesBox.getSelectedItem() + ";");
 
+                    execute.setEnabled(true);
+
                 } else {
                     showMessageDialog(new Frame(), "The file doesn't have .db extension");
+                    execute.setEnabled(false);
                 }
             }
 
@@ -91,6 +100,7 @@ public class SQLiteViewer extends JFrame {
         query = new JTextArea();
         query.setName("QueryTextArea");
         query.setBounds(20, 110, 630, 50);
+        query.setEnabled(false);
         add(query);
         panel.add(query);
         tablesBox.addActionListener(new ActionListener() {
@@ -100,14 +110,16 @@ public class SQLiteViewer extends JFrame {
             }
         });
 
-        JButton execute = new JButton();
+        execute = new JButton();
         execute.setName("ExecuteQueryButton");
         execute.setText("Execute");
+        execute.setEnabled(false);
         execute.setBounds(660, 120, 100, 30);
         add(execute);
         panel.add(execute);
 
         execute.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 DB db = new DB();

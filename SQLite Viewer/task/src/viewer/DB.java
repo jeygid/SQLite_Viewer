@@ -20,8 +20,6 @@ public class DB {
 
             conn = DriverManager.getConnection(DB_BASE_URL + SQLiteViewer.dbFile.getAbsolutePath());
 
-            System.out.println(DB_BASE_URL + SQLiteViewer.dbFile.getAbsolutePath());
-
             stmt = conn.createStatement();
 
             String sql = "SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%';";
@@ -32,16 +30,12 @@ public class DB {
                 SQLiteViewer.tablesList.add(rs.getString("name"));
             }
 
-            SQLiteViewer.tablesList.forEach(System.out::println);
-
             conn.setAutoCommit(true);
             stmt.close();
             conn.close();
 
-        } catch (SQLException se) {
+        } catch (Exception se) {
             se.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
 
             try {
@@ -69,8 +63,6 @@ public class DB {
             Class.forName(JDBC_DRIVER);
 
             conn = DriverManager.getConnection(DB_BASE_URL + SQLiteViewer.dbFile.getAbsolutePath());
-
-            System.out.println(DB_BASE_URL + SQLiteViewer.dbFile.getAbsolutePath());
 
             stmt = conn.createStatement();
 
@@ -110,10 +102,8 @@ public class DB {
             stmt.close();
             conn.close();
 
-        } catch (SQLException se) {
+        } catch (Exception se) {
             se.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
 
             try {
@@ -128,7 +118,6 @@ public class DB {
                 se.printStackTrace();
             }
         }
-
 
     }
 }
