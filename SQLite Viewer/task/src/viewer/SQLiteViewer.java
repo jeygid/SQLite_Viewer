@@ -1,8 +1,27 @@
 package viewer;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static javax.swing.JOptionPane.showMessageDialog;
 
 public class SQLiteViewer extends JFrame {
+
+    public static File dbFile;
+    public static List<String> tablesList = new ArrayList<>();
+
+    public static List<String> columns = new ArrayList<>();
+    public static List<ArrayList<String>> rows = new ArrayList<>();
+
+    public static JComboBox<String> tablesBox;
+    public static JTextArea query;
+    public static JTable resultTable;
 
     public SQLiteViewer() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -30,25 +49,94 @@ public class SQLiteViewer extends JFrame {
         add(open);
         panel.add(open);
 
-        JComboBox tables = new JComboBox();
-        tables.setName("TablesComboBox");
-        tables.setBounds(20, 70, 740, 30);
-        add(tables);
-        panel.add(tables);
+        open.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
 
-        JTextArea query = new JTextArea();
+                File file = new File(fileName.getText());
+
+
+
+                if (file.getName().endsWith(".db")) {
+
+                    fileName.setText(file.getName());
+                    dbFile = file;
+
+                    tablesBox.removeAllItems();
+                    tablesList.clear();
+
+                    DB db = new DB();
+                    db.getTablesList();
+
+                    for (String item : tablesList) {
+                        tablesBox.addItem(item);
+                        System.out.println("Item" + item);
+                    }
+
+                    query.setText("SELECT * FROM " + tablesBox.getSelectedItem() + ";");
+
+                } else {
+                    showMessageDialog(new Frame(), "The file doesn't have .db extension");
+                }
+            }
+
+        });
+
+        tablesBox = new JComboBox<>();
+        tablesBox.setName("TablesComboBox");
+        tablesBox.setBounds(20, 70, 740, 30);
+        add(tablesBox);
+        panel.add(tablesBox);
+
+        query = new JTextArea();
         query.setName("QueryTextArea");
-        query.setBounds(20, 110, 630, 120);
+        query.setBounds(20, 110, 630, 50);
         add(query);
         panel.add(query);
+        tablesBox.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                query.setText("SELECT * FROM " + tablesBox.getSelectedItem() + ";");
+            }
+        });
 
         JButton execute = new JButton();
-        execute.setName("ExecuteQueryButton ");
+        execute.setName("ExecuteQueryButton");
         execute.setText("Execute");
-        execute.setBounds(660, 150, 100, 30);
+        execute.setBounds(660, 120, 100, 30);
         add(execute);
         panel.add(execute);
 
+        execute.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                DB db = new DB();
+                db.getTableData((String) tablesBox.getSelectedItem());
+
+                DefaultTableModel model = new DefaultTableModel();
+                model.setColumnIdentifiers(columns.toArray());
+
+                for (ArrayList<String> row : rows) {
+                    model.addRow(row.toArray());
+                }
+
+                resultTable.setModel(model);
+            }
+        });
+
+        resultTable = new JTable();
+        resultTable.setName("Table");
+        resultTable.setBounds(20, 170, 750, 475);
+        resultTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        JScrollPane scrollTable = new JScrollPane(resultTable);
+        scrollTable.setBounds(20, 170, 750, 475);
+        scrollTable.setVisible(true);
+        scrollTable.setPreferredSize(new Dimension());
+        add(scrollTable);
+        panel.add(scrollTable);
+
         setVisible(true);
+
     }
 }
